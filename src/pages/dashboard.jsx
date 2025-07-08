@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation as useRouteLocation } from "wouter"; // ✅ alias for navigation
 import { Sidebar } from "@/components/Sidebar";
 import { EmergencyStatus } from "@/components/EmergencyStatus";
 import { EmergencyContactsSection } from "@/components/EmergencyContactsSection";
 import { AIChatSection } from "@/components/AIChatSection";
-
+import { toast } from "sonner";
+import axios from "axios";
 import { useEmergency } from "@/hooks/useEmergency";
-import { useLocation } from "@/hooks/useLocation";
+import { useLocation as useGeoLocation } from "@/hooks/useLocation"; // ✅ alias for custom location
 import { useVoice } from "@/hooks/useVoice";
 
 import { MapPin, User } from "lucide-react";
@@ -25,9 +27,44 @@ import {
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
-
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+  const [, setLocation] = useRouteLocation();
   const { triggerAlert, isTriggering } = useEmergency();
-  const { formatLocation } = useLocation();
+  const { formatLocation } = useGeoLocation();
+
+ const fetchUserDetails = async () => {
+  const token = sessionStorage.getItem("token");
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/get-user-details`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    setUserInfo(res.data.User);
+  } catch (error) {
+    console.error("Fetch error:", error);
+    toast.error("Failed to fetch user details");
+  }
+};
+
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      toast.warning("You must be logged in to access the dashboard");
+      setLocation("/login");
+    }
+  }, [setLocation]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("token");
+    toast.success("Logged out successfully");
+    setLocation("/login");
+  };
 
   // Listen for the phrase “Help me” and trigger an alert via voice hook
   useVoice(() =>
@@ -133,10 +170,43 @@ export default function Dashboard() {
               <span>{formatLocation()}</span>
             </div>
 
-            {/* User avatar placeholder */}
-            <div className="w-8 h-8 bg-[hsl(74,100%,40%)] rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-[hsl(220,39%,11%)]" />
+             <div className=" bg-[hsl(220,39%,11%)] text-white flex flex-col items-center justify-center">
+              <button
+                onClick={handleLogout}
+                className="bg-[hsl(74,100%,40%)] text-[hsl(220,39%,11%)] font-bold py-2 px-4 rounded hover:opacity-90 transition"
+              >
+                Logout
+              </button>
             </div>
+
+            {/* User avatar placeholder */}
+          {/* User avatar placeholder */}
+<div className="relative">
+  <div
+    onClick={async () => {
+      const next = !showProfileDropdown;
+      setShowProfileDropdown(next);
+      if (next && !userInfo) {
+        await fetchUserDetails();
+      }
+    }}
+    className="w-8 h-8 bg-[hsl(74,100%,40%)] rounded-full flex items-center justify-center cursor-pointer text-[hsl(220,39%,11%)] font-bold uppercase"
+  >
+    {userInfo?.name?.[0] || <User className="w-4 h-4" />}
+  </div>
+
+  {showProfileDropdown && userInfo && (
+    <div>
+    <div className="absolute right-0 mt-2 w-60 bg-[hsl(215,28%,17%)] border border-[hsl(218,40%,61%)] rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-lg p-4 z-50 text-white">
+      <p className="text-sm"><strong>Name:</strong> {userInfo.name}</p>
+      <p className="text-sm"><strong>Email:</strong> {userInfo.email}</p>
+      <p className="text-sm"><strong>Phone:</strong> {userInfo.phone}</p>
+    </div>
+      </div>
+  )}
+</div>
+
+
           </div>
         </header>
 
@@ -145,6 +215,7 @@ export default function Dashboard() {
           {renderSection()}
         </main>
       </div>
+      {/* {showProfile && <UserProfileModal onClose={() => setShowProfile(false)} />} */}
     </div>
   );
 }

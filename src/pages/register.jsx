@@ -72,20 +72,20 @@ const Register = () => {
 
     try {
       await axios.post(
-        `${import.meta.env.APP_API_BASE_URL}/api/users/register`,
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/register`,
         form
       );
 
       toast.success(
-        "✅ Registration Successful",
+        " Registration Successful",
        { description: "Redirecting to dashboard...",
       });
-      setTimeout(() => setLocation("/dashboard"), 1000);
+      setTimeout(() => setLocation("/login"), 1000);
     } catch (error) {
       const message =
         error.response?.data?.message || "Unexpected error occurred";
       toast.error(
-       "❌ Registration Failed",
+       " Registration Failed",
        { description: message,});
     } finally {
       setLoading(false);
@@ -195,6 +195,17 @@ const Register = () => {
         >
           {loading ? "Registering..." : "Register"}
         </button>
+        <p className="text-sm text-center mt-4 text-slate-400">
+  Already a member?{" "}
+  <button
+    type="button"
+    onClick={() => setLocation("/login")}
+    className="text-yellow-400 underline hover:text-yellow-300"
+  >
+    Login
+  </button>
+</p>
+
       </form>
     </div>
   );

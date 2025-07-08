@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-
+import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "sonner";
@@ -45,42 +45,39 @@ import {
   UserCheck,
 } from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/* 1) Local Zod schema for form validation (no @shared/schema import) */
-/* ------------------------------------------------------------------ */
+
 const contactFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   phone: z.string().min(1, "Phone number is required"),
-  email: z
-    .string()
-    .email("Invalid email")
-    .optional()
-    .or(z.literal("")),
-  relationship: z.string().optional(),
-  isPrimary: z.boolean().optional(),
 });
 
-/* Derive form data type (optional for autocomplete) */
 const defaultValues = {
   name: "",
   phone: "",
-  email: "",
-  relationship: "",
-  isPrimary: false,
 };
 
+
 export function EmergencyContactsSection() {
-  /* ------------------------- local component state ------------------------- */
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
-
-  /* ---------------------------- hooks / helpers ---------------------------- */
   const queryClient = useQueryClient();
 
-  /* ---------------------------- fetch contacts ----------------------------- */
-  const { data: contacts = [], isLoading } = useQuery({
-    queryKey: ["/api/emergency-contacts"],
-  });
+const { data: contactsData = {}, isLoading } = useQuery({
+  queryKey: ["/api/users/contacts"],
+  queryFn: async () => {
+    const token = sessionStorage.getItem("token");
+    const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/contacts`, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data; // expects { contacts: [...] }
+  },
+});
+const contacts = contactsData.contacts || [];
+// console.log("Fetched contacts:", contacts);
 
   /* ---------------------------- react‑hook‑form ---------------------------- */
   const form = useForm({
@@ -89,9 +86,9 @@ export function EmergencyContactsSection() {
   });
 
   /* --------------------------- create & update ----------------------------- */
-  const createContactMutation = useMutation({
-    mutationFn: async (data) =>
-      (await apiRequest("POST", "/api/emergency-contacts", data)).json(),
+const createContactMutation = useMutation({
+  mutationFn: async (data) =>
+    (await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users/contacts`, data)).data,
     onSuccess: () => {
       toast.success("Emergency contact added successfully");
       queryClient.invalidateQueries({ queryKey: ["/api/emergency-contacts"] });
@@ -107,16 +104,39 @@ export function EmergencyContactsSection() {
   });
 
   const updateContactMutation = useMutation({
-    mutationFn: async ({ id, data }) =>
-      (await apiRequest("PUT", `/api/emergency-contacts/${id}`, data)).json(),
-    onSuccess: () => {
-      toast.success("Contact updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["/api/emergency-contacts"] });
-      setIsAddDialogOpen(false);
-      setEditingContact(null);
-      form.reset(defaultValues);
-    },
-  });
+  mutationFn: async ({ id, data }) => {
+    const token = sessionStorage.getItem("token"); 
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/edit-contact/${id}`,
+      {
+        name: data.name,
+        phone: data.phone,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return res.data;
+  },
+  onSuccess: () => {
+    toast.success("Contact updated successfully");
+    queryClient.invalidateQueries({ queryKey: ["/api/users/contacts"] });
+    setIsAddDialogOpen(false);
+    setEditingContact(null);
+    form.reset(defaultValues);
+  },
+  onError: (error) => {
+    console.error("Update Contact Error", error);
+    toast.error("Failed to update contact", {
+      description: "Something went wrong. Please try again.",
+    });
+  },
+});
+
 
   /* ----------------------------- delete contact ---------------------------- */
   const deleteContactMutation = useMutation({
@@ -131,19 +151,17 @@ export function EmergencyContactsSection() {
   /* ----------------------- helpers for edit & UI --------------------------- */
   const onSubmit = (data) => {
     editingContact
-      ? updateContactMutation.mutate({ id: editingContact.id, data })
+      ? updateContactMutation.mutate({ id: editingContact._id, data })
       : createContactMutation.mutate(data);
   };
 
   const handleEdit = (contact) => {
     setEditingContact(contact);
     form.reset({
-      name: contact.name,
-      phone: contact.phone,
-      email: contact.email || "",
-      relationship: contact.relationship || "",
-      isPrimary: Boolean(contact.isPrimary),
-    });
+  name: contact.name,
+  phone: contact.phone,
+});
+
     setIsAddDialogOpen(true);
   };
 
@@ -168,9 +186,7 @@ export function EmergencyContactsSection() {
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /*                              RENDER                                */
-  /* ------------------------------------------------------------------ */
+
   return (
     <div className="max-w-6xl space-y-6">
       {/* Heading */}
@@ -282,57 +298,6 @@ export function EmergencyContactsSection() {
                 )}
               </div>
 
-              {/* Email */}
-              <div>
-                <Label htmlFor="email" className="text-white">
-                  Email (Optional)
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...form.register("email")}
-                  placeholder="email@example.com"
-                  className="bg-slate-700 border-slate-600 text-white"
-                />
-                {form.formState.errors.email && (
-                  <p className="text-red-400 text-sm mt-1">
-                    {form.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Relationship */}
-              <div>
-                <Label htmlFor="relationship" className="text-white">
-                  Relationship
-                </Label>
-                <Select
-                  onValueChange={(val) => form.setValue("relationship", val)}
-                  defaultValue={form.getValues("relationship")}
-                >
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue placeholder="Select relationship" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      "family",
-                      "friend",
-                      "spouse",
-                      "parent",
-                      "child",
-                      "doctor",
-                      "neighbor",
-                      "colleague",
-                      "other",
-                    ].map((opt) => (
-                      <SelectItem key={opt} value={opt}>
-                        {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Primary switch */}
               <div className="flex items-center space-x-2">
                 <Switch
@@ -407,7 +372,7 @@ export function EmergencyContactsSection() {
             <div className="space-y-4">
               {contacts.map((c) => (
                 <div
-                  key={c.id}
+                  key={c._id}
                   className="bg-slate-700/50 rounded-lg p-4 border border-slate-600 hover:border-[hsl(74,100%,40%)]/50 transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -455,7 +420,7 @@ export function EmergencyContactsSection() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleEdit(c)}
-                        className="text-slate-400 hover:text-white"
+                        className="text-slate-400 hover:text-black"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -463,7 +428,7 @@ export function EmergencyContactsSection() {
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(c.id)}
-                        className="text-red-400 hover:text-red-300"
+                        className="text-red-600 hover:text-red-400"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
