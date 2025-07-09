@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import axios from "axios";
+import backgroundImage from "../assets/logo2.png";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -17,7 +18,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!form.email || !form.password) {
       toast.error("All fields are required", {
         description: "Please enter both email and password.",
@@ -26,25 +26,19 @@ const Login = () => {
     }
 
     setLoading(true);
-
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/login`,
         form
       );
       sessionStorage.setItem("token", res.data.token);
-      toast.success("Login Successful", {
+      toast.success("Account Created", {
         description: "Redirecting to dashboard...",
       });
-
-      // Optionally save token/user in localStorage or context
-      // localStorage.setItem("token", res.data.token);
-
       setTimeout(() => setLocation("/dashboard"), 1000);
     } catch (error) {
-      const message =
-        error.response?.data?.message || "Login failed. Try again.";
-      toast.error("Login Failed", {
+      const message = error.response?.data?.message || "Registration failed.";
+      toast.error("Error", {
         description: message,
       });
     } finally {
@@ -53,64 +47,92 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-[hsl(220,39%,11%)]">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md sm:max-w-lg bg-[hsl(215,28%,17%)] text-white p-6 sm:p-8 rounded-lg shadow-lg border border-[hsl(218,40%,61%)]"
-      >
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center">
-          Login
-        </h2>
+    <div
+      className="min-h-screen flex items-center justify-left bg-no-repeat bg-cover bg-center relative px-4"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
 
-        {/* Email */}
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full mb-4 px-4 py-2 rounded text-slate-800 bg-white focus:outline-none"
-        />
+      }}
+    >
+      {/* Left to right dark gradient */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-black to-[hsl(224,38%,25%)] opacity-95" />
+   <form
+  onSubmit={handleSubmit}
+  className="relative z-10 w-full max-w-lg min-h-[520px] bg-white/5 backdrop-blur-md text-white p-8 sm:p-10 rounded-2xl shadow-xl flex flex-col justify-center">
+  <p className="uppercase text-xs text-slate-400 mb-4">Start for free</p>
+ <h2 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 leading-tight sm:leading-snug tracking-tight">
+  Log in to your <span className="text-[hsl(74,100%,40%)]">account</span>
+</h2>
 
-        {/* Password */}
-        <div className="relative mb-6">
-          <input
-            type={showPwd ? "password" : "text"}
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 pr-10 rounded text-slate-800 bg-white focus:outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPwd(!showPwd)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
-          >
-            {showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[hsl(74,100%,40%)] text-[hsl(220,39%,11%)] font-bold py-2 rounded hover:opacity-90 transition"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-        <p className="text-sm text-center mt-4 text-slate-400">
+<p className="text-sm sm:text-base text-slate-400 mb-8">
   New here?{" "}
   <button
     type="button"
     onClick={() => setLocation("/")}
-    className="text-yellow-400 underline hover:text-yellow-300"
+    className="text-[hsl(74,100%,40%)] underline hover:text-[hsl(75,38%,68%)] transition-colors duration-150"
   >
     Register
   </button>
 </p>
 
-      </form>
+   <div className="relative mb-6">
+    <label className="block text-sm text-slate-400 mb-1">Enter your email</label>
+    <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-yellow-400">
+      <input
+        type="email"
+        name="email"
+       value={form.email}
+    onChange={handleChange}
+        placeholder="your@email.com"
+        className="flex-1 bg-transparent text-sm outline-none placeholder-slate-500"
+      />
+      <Mail size={18} className="ml-2 text-slate-400" />
+    </div>
+  </div>
+
+   <div className="relative mb-6">
+      {/* Label */}
+      <label className="block text-sm text-slate-400 mb-1">Enter your password</label>
+
+      {/* Styled Input Box */}
+      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-yellow-400">
+        <input
+          type={showPwd ? "password" : "text"}
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="••••••••"
+          className="flex-1 bg-transparent text-sm outline-none placeholder-slate-500"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPwd((prev) => !prev)}
+          className="ml-2 text-slate-400"
+        >
+          {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+    </div>
+
+  <button
+    type="submit"
+    disabled={loading}
+    className="w-full bg-[hsl(74,100%,40%)] hover:bg-[hsl(72,22%,69%)] text-white font-semibold py-3 rounded-md transition duration-300"
+  >
+    {loading ? "Creating..." : "Create account"}
+  </button>
+
+   {/* Brand slogan */}
+<div className="mt-5 hidden sm:flex">
+  <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full uppercase tracking-wide bg-white/10 text-white">
+    <span className="w-3 h-3 rounded-full bg-[hsl(74,100%,40%)]" />
+    Support That’s Smart. Control That’s Constant.
+  </span>
+</div>
+</form>
+      <div className="absolute bottom-4 right-4 z-10">
+        <img src="/logo1.png" alt="logo" className="w-14 h-14" />
+      </div>
     </div>
   );
 };

@@ -73,13 +73,18 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
     <div className="flex flex-col h-full bg-[hsl(215,28%,17%)] border-r border-[hsl(217,32%,26%)]">
       <div className="flex items-center justify-between p-6 border-b border-[hsl(217,32%,26%)]">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-[hsl(74,100%,40%)] rounded-lg flex items-center justify-center">
-            <Shield className="w-4 h-4 text-[hsl(220,39%,11%)]" />
+          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[hsl(74,100%,40%)]">
+            <img
+              src="/logo.png" 
+              alt="Smart Crisis Manager Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
+
           <h1 className="text-xl font-bold text-white">Crisis Manager</h1>
         </div>
         {onClose && (
-          <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden text-slate-400 hover:text-white">
+          <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden text-slate-400 hover:text-black">
             <X className="w-5 h-5" />
           </Button>
         )}
@@ -163,11 +168,11 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
       {/* Mobile Sidebar */}
       <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="lg:hidden text-slate-400 hover:text-white">
+          <Button variant="ghost" size="icon" className="lg:hidden text-slate-400 hover:text-black">
             <Menu className="w-6 h-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-80">
+        <SheetContent side="left" className="p-0 w-80 [&>button.absolute.top-4.right-4]:hidden" >
           <SidebarContent onClose={() => setIsMobileOpen(false)} />
         </SheetContent>
       </Sheet>

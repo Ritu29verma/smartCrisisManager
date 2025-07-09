@@ -33,23 +33,23 @@ export default function Dashboard() {
   const { triggerAlert, isTriggering } = useEmergency();
   const { formatLocation } = useGeoLocation();
 
- const fetchUserDetails = async () => {
-  const token = sessionStorage.getItem("token");
-  try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/get-user-details`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setUserInfo(res.data.User);
-  } catch (error) {
-    console.error("Fetch error:", error);
-    toast.error("Failed to fetch user details");
-  }
-};
+  const fetchUserDetails = async () => {
+    const token = sessionStorage.getItem("token");
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/get-user-details`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUserInfo(res.data.User);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast.error("Failed to fetch user details");
+    }
+  };
 
 
   useEffect(() => {
@@ -133,18 +133,17 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen bg-[hsl(220,39%,11%)]">
       {/* Sidebar (dock‑out icon, nav links, emergency button, etc.) */}
-      <Sidebar
+      {/* <Sidebar
         activeSection={activeSection}
         onSectionChange={setActiveSection}
         onEmergencyTrigger={handleEmergencyTrigger}
         isEmergencyTriggering={isTriggering}
-      />
+      /> */}
 
-      {/* MAIN PANEL  **************************************************** */}
       <div className="flex-1 flex flex-col lg:ml-80">
         {/* Header */}
         <header className="bg-[hsl(215,28%,17%)] border-b border-[hsl(217,32%,26%)] px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             {/* (Optional) show burger / sidebar toggle on mobile */}
             <Sidebar
               activeSection={activeSection}
@@ -152,14 +151,21 @@ export default function Dashboard() {
               onEmergencyTrigger={handleEmergencyTrigger}
               isEmergencyTriggering={isTriggering}
             />
-
-            <div>
+            <div className="hidden sm:block">
               <h2 className="text-xl font-semibold text-white">
                 {getSectionTitle(activeSection)}
               </h2>
               <p className="text-sm text-slate-400">
                 Smart Crisis Management System
               </p>
+            </div>
+
+            <div className="block sm:hidden w-8 h-8 rounded-full overflow-hidden border-2 border-[hsl(74,100%,40%)]">
+              <img
+                src="/logo.png"
+                alt="Smart Crisis Manager Logo"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
@@ -170,7 +176,7 @@ export default function Dashboard() {
               <span>{formatLocation()}</span>
             </div>
 
-             <div className=" bg-[hsl(220,39%,11%)] text-white flex flex-col items-center justify-center">
+            <div className=" bg-[hsl(220,39%,11%)] text-white flex flex-col items-center justify-center">
               <button
                 onClick={handleLogout}
                 className="bg-[hsl(74,100%,40%)] text-[hsl(220,39%,11%)] font-bold py-2 px-4 rounded hover:opacity-90 transition"
@@ -180,31 +186,31 @@ export default function Dashboard() {
             </div>
 
             {/* User avatar placeholder */}
-          {/* User avatar placeholder */}
-<div className="relative">
-  <div
-    onClick={async () => {
-      const next = !showProfileDropdown;
-      setShowProfileDropdown(next);
-      if (next && !userInfo) {
-        await fetchUserDetails();
-      }
-    }}
-    className="w-8 h-8 bg-[hsl(74,100%,40%)] rounded-full flex items-center justify-center cursor-pointer text-[hsl(220,39%,11%)] font-bold uppercase"
-  >
-    {userInfo?.name?.[0] || <User className="w-4 h-4" />}
-  </div>
+            {/* User avatar placeholder */}
+            <div className="relative">
+              <div
+                onClick={async () => {
+                  const next = !showProfileDropdown;
+                  setShowProfileDropdown(next);
+                  if (next && !userInfo) {
+                    await fetchUserDetails();
+                  }
+                }}
+                className="w-8 h-8 bg-[hsl(74,100%,40%)] rounded-full flex items-center justify-center cursor-pointer text-[hsl(220,39%,11%)] font-bold uppercase"
+              >
+                {userInfo?.name?.[0] || <User className="w-4 h-4" />}
+              </div>
 
-  {showProfileDropdown && userInfo && (
-    <div>
-    <div className="absolute right-0 mt-2 w-60 bg-[hsl(215,28%,17%)] border border-[hsl(218,40%,61%)] rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-lg p-4 z-50 text-white">
-      <p className="text-sm"><strong>Name:</strong> {userInfo.name}</p>
-      <p className="text-sm"><strong>Email:</strong> {userInfo.email}</p>
-      <p className="text-sm"><strong>Phone:</strong> {userInfo.phone}</p>
-    </div>
-      </div>
-  )}
-</div>
+              {showProfileDropdown && userInfo && (
+                <div>
+                  <div className="absolute right-0 mt-2 w-60 bg-[hsl(215,28%,17%)] border border-[hsl(218,40%,61%)] rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-lg p-4 z-50 text-white">
+                    <p className="text-sm"><strong>Name:</strong> {userInfo.name}</p>
+                    <p className="text-sm"><strong>Email:</strong> {userInfo.email}</p>
+                    <p className="text-sm"><strong>Phone:</strong> {userInfo.phone}</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
 
           </div>
@@ -215,7 +221,6 @@ export default function Dashboard() {
           {renderSection()}
         </main>
       </div>
-      {/* {showProfile && <UserProfileModal onClose={() => setShowProfile(false)} />} */}
     </div>
   );
 }
