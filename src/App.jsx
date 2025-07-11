@@ -8,6 +8,7 @@ import Dashboard from "@/pages/dashboard";
 // import NotFound from "@/pages/not-found";
 import Register from "./pages/register";
 import Login from "./pages/Login";
+import HomePage from "./pages/Homepage";
 
  const PrivateRoute = ({ component: Component }) => {
   const token = sessionStorage.getItem("token");
@@ -17,7 +18,7 @@ import Login from "./pages/Login";
 const LoginRedirect = () => {
   const [, setLocation] = useLocation();
   useEffect(() => {
-    setLocation("/login");
+    setLocation("/");
   }, []);
   return null; // Optionally show a loading spinner here
 };
@@ -25,7 +26,8 @@ const LoginRedirect = () => {
 function Router() {
   return (
      <Switch>
-      <Route path="/" component={Register} />
+      <Route path="/" component={HomePage} />
+      <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={() => <PrivateRoute component={Dashboard} />} />
       {/* <Route component={NotFound} /> */}

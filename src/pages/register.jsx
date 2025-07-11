@@ -108,7 +108,7 @@ const Register = () => {
       >
         <p className="uppercase text-xs text-slate-400 mb-2">Start for free</p>
         <h2 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3 leading-tight tracking-tight">
-          Create new <span className="text-[hsl(74,100%,40%)]">account</span>
+          Create new <span className="text-[var(--accent)]">account</span>
         </h2>
 
         <p className="text-sm sm:text-base text-slate-400 mb-5">
@@ -116,7 +116,7 @@ const Register = () => {
   <button
     type="button"
     onClick={() => setLocation("/login")}
-    className="text-[hsl(74,100%,40%)] underline hover:text-[hsl(75,38%,68%)] transition-colors duration-150"
+    className="text-[var(--accent)] underline hover:text-[hsl(75,38%,68%)] transition-colors duration-150"
   >
     Login
   </button>
@@ -127,7 +127,7 @@ const Register = () => {
     {/* Name */}
     <div className="relative mb-6">
       <label className="block text-sm text-slate-400 mb-1">Your Name</label>
-      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[hsl(74,100%,40%)]">
+      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent)]">
         <input
           type="text"
           name="name"
@@ -142,7 +142,7 @@ const Register = () => {
     {/* Email */}
     <div className="relative mb-6">
       <label className="block text-sm text-slate-400 mb-1">Email</label>
-      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[hsl(74,100%,40%)]">
+      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent)]">
         <input
           type="email"
           name="email"
@@ -158,7 +158,7 @@ const Register = () => {
     {/* Phone */}
     <div className="relative mb-6">
       <label className="block text-sm text-slate-400 mb-1">Phone Number</label>
-      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[hsl(74,100%,40%)]">
+      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent)]">
         <input
           type="text"
           name="phone"
@@ -175,7 +175,7 @@ const Register = () => {
     {/* Password */}
     <div className="relative mb-6">
       <label className="block text-sm text-slate-400 mb-1">Password</label>
-      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[hsl(74,100%,40%)]">
+      <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent)]">
         <input
           type={showPwd ? "password" : "text"}
           name="password"
@@ -196,7 +196,7 @@ const Register = () => {
 
     <button
       type="button"
-      className="ml-auto mt-2 flex items-center gap-2 text-sm text-[hsl(74,100%,40%)] hover:text-[hsl(75,38%,68%)]"
+      className="ml-auto mt-2 flex items-center gap-2 text-sm text-[var(--accent)] hover:text-[hsl(75,38%,68%)]"
       onClick={handleNextStep}
     >
       Continue <ArrowRight size={18} />
@@ -217,7 +217,7 @@ const Register = () => {
         {/* Contact Name */}
         <div className="relative mb-3">
           <label className="block text-sm text-slate-400 mb-1">Name</label>
-          <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[hsl(74,100%,40%)]">
+          <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent)]">
             <input
               type="text"
               name={`contactName${idx}`}
@@ -232,7 +232,7 @@ const Register = () => {
         {/* Contact Phone */}
         <div className="relative">
           <label className="block text-sm text-slate-400 mb-1">Phone</label>
-          <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[hsl(74,100%,40%)]">
+          <div className="flex items-center bg-slate-800 text-white px-4 py-3 rounded-md shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent)]">
             <input
               type="text"
               name={`contactPhone${idx}`}
@@ -253,7 +253,7 @@ const Register = () => {
     <button
       type="button"
       onClick={() => setStep(1)}
-      className="ml-auto mt-2 flex items-center gap-2 text-sm text-[hsl(74,100%,40%)] hover:text-[hsl(75,38%,68%)]"
+      className="ml-auto mt-2 flex items-center gap-2 text-sm text-[var(--accent)] hover:text-white"
     >
       <ArrowLeft size={18} />
       <span>Back</span>
@@ -263,7 +263,7 @@ const Register = () => {
     <button
       type="submit"
       disabled={loading}
-      className="w-full mt-4 bg-[hsl(74,100%,40%)] hover:bg-[hsl(72,22%,69%)] text-white font-semibold py-3 rounded-md transition duration-300"
+      className="w-full mt-4 bg-[var(--accent)] hover:bg-white text-black font-semibold py-3 rounded-md transition duration-300"
     >
       {loading ? "Registering..." : "Register"}
     </button>
@@ -273,7 +273,7 @@ const Register = () => {
         {/* Brand slogan */}
         <div className="mt-5 hidden sm:flex">
           <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full uppercase tracking-wide bg-white/10 text-white">
-            <span className="w-3 h-3 rounded-full bg-[hsl(74,100%,40%)]" />
+            <span className="w-3 h-3 rounded-full bg-[var(--accent)]" />
             Support That’s Smart. Control That’s Constant.
           </span>
         </div>

@@ -246,7 +246,7 @@ const createContactMutation = useMutation({
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[hsl(74,100%,40%)] hover:bg-[hsl(74,100%,35%)] text-black">
+            <Button className="bg-[var(--accent)] hover:bg-white text-black">
               <Plus className="w-4 h-4 mr-2" />
               Add Contact
             </Button>
@@ -318,7 +318,7 @@ const createContactMutation = useMutation({
                     createContactMutation.isPending ||
                     updateContactMutation.isPending
                   }
-                  className="bg-[hsl(74,100%,40%)] hover:bg-[hsl(74,100%,35%)] text-black flex-1"
+                  className="bg-[var(--accent)] hover:bg-white text-black flex-1"
                 >
                   {editingContact ? "Update Contact" : "Add Contact"}
                 </Button>
@@ -361,7 +361,7 @@ const createContactMutation = useMutation({
               </p>
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
-                className="bg-[hsl(74,100%,40%)] hover:bg-[hsl(74,100%,35%)] text-black"
+                className="bg-[var(--accent)] hover:bg-white text-black"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Your First Contact

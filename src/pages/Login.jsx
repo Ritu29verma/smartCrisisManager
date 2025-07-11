@@ -61,15 +61,15 @@ const Login = () => {
   className="relative z-10 w-full max-w-lg min-h-[520px] bg-white/5 backdrop-blur-md text-white p-8 sm:p-10 rounded-2xl shadow-xl flex flex-col justify-center">
   <p className="uppercase text-xs text-slate-400 mb-4">Start for free</p>
  <h2 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 leading-tight sm:leading-snug tracking-tight">
-  Log in to your <span className="text-[hsl(74,100%,40%)]">account</span>
+  Log in to your <span className="text-[var(--accent)]">account</span>
 </h2>
 
 <p className="text-sm sm:text-base text-slate-400 mb-8">
   New here?{" "}
   <button
     type="button"
-    onClick={() => setLocation("/")}
-    className="text-[hsl(74,100%,40%)] underline hover:text-[hsl(75,38%,68%)] transition-colors duration-150"
+    onClick={() => setLocation("/register")}
+    className="text-[var(--accent)] underline hover:text-[hsl(75,38%,68%)] transition-colors duration-150"
   >
     Register
   </button>
@@ -117,15 +117,15 @@ const Login = () => {
   <button
     type="submit"
     disabled={loading}
-    className="w-full bg-[hsl(74,100%,40%)] hover:bg-[hsl(72,22%,69%)] text-white font-semibold py-3 rounded-md transition duration-300"
+    className="w-full bg-[var(--accent)] hover:bg-[hsl(72,22%,69%)] text-black font-semibold py-3 rounded-md transition duration-300"
   >
-    {loading ? "Creating..." : "Create account"}
+    {loading ? "Logging In..." : "Login"}
   </button>
 
    {/* Brand slogan */}
 <div className="mt-5 hidden sm:flex">
   <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full uppercase tracking-wide bg-white/10 text-white">
-    <span className="w-3 h-3 rounded-full bg-[hsl(74,100%,40%)]" />
+    <span className="w-3 h-3 rounded-full bg-[var(--accent)]" />
     Support That’s Smart. Control That’s Constant.
   </span>
 </div>

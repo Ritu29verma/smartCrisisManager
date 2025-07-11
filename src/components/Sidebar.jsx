@@ -73,7 +73,7 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
     <div className="flex flex-col h-full bg-[hsl(215,28%,17%)] border-r border-[hsl(217,32%,26%)]">
       <div className="flex items-center justify-between p-6 border-b border-[hsl(217,32%,26%)]">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[hsl(74,100%,40%)]">
+          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-[var(--accent)]">
             <img
               src="/logo.png" 
               alt="Smart Crisis Manager Logo"
@@ -122,11 +122,11 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
                 className={cn(
                   "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors duration-200",
                   isActive
-                    ? "bg-[hsl(74,100%,40%)]/20 text-[hsl(74,100%,40%)]"
+                    ? "bg-[var(--accent)]/20 text-[var(--accent)]"
                     : "hover:bg-slate-700 text-white"
                 )}
               >
-                <Icon className="w-5 h-5 text-[hsl(74,100%,40%)]" />
+                <Icon className="w-5 h-5 text-[var(--accent)]" />
                 <span>{item.label}</span>
               </button>
             );

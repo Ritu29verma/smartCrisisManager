@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -19,10 +19,12 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
+import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "sonner";
+import { applyAccentColor, applyTheme } from "@/lib/themeUtils";
+import jsPDF from "jspdf";
 
 /* ------------------------------------------------------------------ */
 /*  1) AI Settings                                                     */
@@ -198,7 +200,7 @@ export function AutomationRulesSection() {
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-white">Active Rules</CardTitle>
-          <Button className="bg-[hsl(74,100%,40%)] hover:bg-[hsl(74,100%,35%)] text-black">
+          <Button className="bg-[var(--accent)] hover:white text-black">
             Add Rule
           </Button>
         </CardHeader>
@@ -233,22 +235,85 @@ export function AutomationRulesSection() {
 /* ------------------------------------------------------------------ */
 /*  4) Chat History                                                    */
 /* ------------------------------------------------------------------ */
+
 export function ChatHistorySection() {
-  const { data: alertLogs, isLoading } = useQuery({
-    queryKey: ["/api/alert-logs"],
+  const token = sessionStorage.getItem("token");
+
+  const { data: chatHistory, isLoading } = useQuery({
+    queryKey: ["chat-history"],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/chat/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res.data;
+    },
   });
 
-  const exportHistory = () => {
-    const blob = new Blob([JSON.stringify(alertLogs, null, 2)], {
-      type: "application/json",
+const exportHistory = () => {
+  if (!chatHistory || chatHistory.length === 0) return;
+
+  const doc = new jsPDF();
+  let y = 10;
+
+  doc.setFont("helvetica");
+  doc.setFontSize(16);
+  doc.text("Crisis Manager Chat History", 10, y);
+  y += 10;
+
+  chatHistory.forEach((log, idx) => {
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text(`Chat ${idx + 1}`, 10, y);
+    y += 6;
+    doc.setFontSize(10);
+    doc.text(`Date: ${new Date(log.createdAt).toLocaleString()}`, 10, y);
+    y += 6;
+
+    log.messages.forEach((msg) => {
+      const role = msg.role === "assistant" ? "AI" : "You";
+      const prefix = `${role}: `;
+      const text = `${prefix}${msg.content}`;
+
+      const splitText = doc.splitTextToSize(text, 180); // wrap long lines
+      if (y + splitText.length * 6 >= 280) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(splitText, 10, y);
+      y += splitText.length * 6;
     });
-    const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement("a"), {
-      href: url,
-      download: "crisis-manager-history.json",
-    });
-    a.click();
-  };
+
+    if (log.suggestedActions?.length) {
+      y += 4;
+      doc.setFont("helvetica", "bold");
+      doc.text("Suggested Actions:", 10, y);
+      doc.setFont("helvetica", "normal");
+      y += 6;
+      log.suggestedActions.forEach((action) => {
+        const wrapped = doc.splitTextToSize(`- ${action}`, 180);
+        if (y + wrapped.length * 6 >= 280) {
+          doc.addPage();
+          y = 10;
+        }
+        doc.text(wrapped, 10, y);
+        y += wrapped.length * 6;
+      });
+    }
+
+    y += 10; // space between chats
+    if (y >= 280) {
+      doc.addPage();
+      y = 10;
+    }
+  });
+
+  doc.save("crisis-manager-chat-history.pdf");
+};
 
   return (
     <div className="max-w-4xl">
@@ -259,7 +324,7 @@ export function ChatHistorySection() {
 
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-white">Recent Activity</CardTitle>
+          <CardTitle className="text-white">Recent Conversations</CardTitle>
           <Button
             variant="outline"
             onClick={exportHistory}
@@ -268,42 +333,70 @@ export function ChatHistorySection() {
             Export History
           </Button>
         </CardHeader>
+
         <CardContent>
           {isLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(74,100%,40%)] mx-auto" />
             </div>
-          ) : alertLogs?.length ? (
-            <div className="space-y-3">
-              {alertLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="bg-slate-800 rounded-lg p-4 space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-white">
-                      {new Date(log.timestamp).toLocaleString()}
+          ) : chatHistory?.length ? (
+            <div className="space-y-6">
+              {chatHistory.map((chat, idx) => (
+                <div key={chat._id} className="bg-slate-800 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white font-medium">
+                      {new Date(chat.createdAt).toLocaleString()}
                     </span>
-                    <Badge
-                      className={
-                        log.status === "sent"
-                          ? "bg-green-900/30 text-green-400 border-green-700"
-                          : log.status === "failed"
-                          ? "bg-red-900/30 text-red-400 border-red-700"
-                          : "bg-blue-900/30 text-blue-400 border-blue-700"
-                      }
-                    >
-                      {log.status}
-                    </Badge>
+                    {chat.emergencyDetected && (
+                      <Badge
+                        className={`${
+                          chat.severity === "high"
+                            ? "bg-red-900/30 text-red-400 border-red-700"
+                            : chat.severity === "medium"
+                            ? "bg-orange-900/30 text-orange-400 border-orange-700"
+                            : "bg-yellow-900/30 text-yellow-400 border-yellow-700"
+                        }`}
+                      >
+                        {chat.severity} Emergency
+                      </Badge>
+                    )}
                   </div>
-                  <p className="text-sm text-slate-300">
-                    {log.message || `${log.alertType} alert ${log.status}`}
-                  </p>
+
+                  <div className="space-y-2">
+                    {chat.messages.map((msg, mIdx) => (
+                      <div
+                        key={msg._id || mIdx}
+                        className={`p-3 rounded-md ${
+                          msg.role === "user"
+                            ? "bg-[var(--accent)] text-black"
+                            : "bg-slate-700 text-white"
+                        }`}
+                      >
+                        <p className="text-sm">
+                          <strong className="capitalize">{msg.role}:</strong> {msg.content}
+                        </p>
+                        <p className="text-xs text-black mt-1">
+                          {new Date(msg.timestamp).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {chat.suggestedActions?.length > 0 && (
+                    <div className="text-sm text-red-400 mt-2">
+                      <p className="font-medium">Suggested Actions:</p>
+                      <ul className="list-disc ml-5 mt-1">
+                        {chat.suggestedActions.map((action, i) => (
+                          <li key={i}>{action}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center py-8 text-slate-400">No activity yet</p>
+            <p className="text-center py-8 text-slate-400">No chat history found</p>
           )}
         </CardContent>
       </Card>
@@ -314,52 +407,64 @@ export function ChatHistorySection() {
 /* ------------------------------------------------------------------ */
 /*  5) Theme & Appearance                                              */
 /* ------------------------------------------------------------------ */
+
 export function ThemeAppearanceSection() {
-  const queryClient = useQueryClient();
-  const { data: settings } = useQuery({ queryKey: ["/api/user-settings"] });
+  const accentColors = ["#99CC00", "#3B82F6", "#8B5CF6", "#fef9c3", "#F97316"];
+  const [currentTheme, setCurrentTheme] = useState("dark");
 
-  const update = useMutation({
-    mutationFn: async (newSettings) =>
-      (await apiRequest("PUT", "/api/user-settings", newSettings)).json(),
-    onSuccess: () => {
-      toast.success("Theme updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["/api/user-settings"] });
-    },
-  });
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setCurrentTheme(savedTheme);
+  }, []);
 
-  const accentColors = ["#99CC00", "#3B82F6", "#8B5CF6", "#EF4444", "#F97316"];
+  const handleThemeChange = (theme) => {
+    applyTheme(theme);
+    setCurrentTheme(theme);
+  };
+
+  const accentBorder = "border-[var(--accent)]";
 
   return (
     <div className="max-w-4xl space-y-6">
+      {/* Header */}
       <header className="mb-6">
-        <h2 className="text-2xl font-bold mb-2 text-white">
-          Theme &amp; Appearance
-        </h2>
-        <p className="text-slate-400">
-          Customize the visual appearance of your crisis manager
-        </p>
+        <h2 className="text-2xl font-bold mb-2 text-white">Theme & Appearance</h2>
+        <p className="text-slate-400">Customize the visual appearance of your crisis manager</p>
       </header>
 
-      {/* Theme mode mockup */}
+      {/* Theme Switch */}
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Theme Mode</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-4">
-            <button className="bg-slate-800 border-2 border-[hsl(74,100%,40%)] rounded-lg p-4 flex-1 text-center">
-              <div className="text-2xl mb-2">🌙</div>
-              <p className="font-medium text-white">Dark Mode</p>
-            </button>
-            <button className="bg-slate-800 border-2 border-slate-600 rounded-lg p-4 flex-1 text-center opacity-50">
-              <div className="text-2xl mb-2">☀️</div>
-              <p className="font-medium text-white">Light Mode</p>
-            </button>
-          </div>
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 p-6 rounded-lg">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => handleThemeChange("dark")}
+            className={`bg-slate-800 border-2 rounded-lg p-4 flex-1 text-center ${
+              currentTheme === "dark" ? accentBorder : "border-slate-600"
+            }`}
+          >
+            <div className="text-2xl mb-2">🌙</div>
+            <p className="font-medium text-white">Dark Mode</p>
+          </button>
+
+          <button
+            onClick={() => handleThemeChange("light")}
+            className={`bg-slate-800 border-2 rounded-lg p-4 flex-1 text-center ${
+              currentTheme === "light" ? accentBorder : "border-slate-600"
+            }`}
+          >
+            <div className="text-2xl mb-2">☀️</div>
+            <p className="font-medium text-white">Light Mode</p>
+          </button>
+        </div>
+      </div>
         </CardContent>
       </Card>
 
-      {/* Accent color */}
+      {/* Accent Color Switch */}
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Accent Color</CardTitle>
@@ -369,12 +474,8 @@ export function ThemeAppearanceSection() {
             {accentColors.map((color) => (
               <button
                 key={color}
-                onClick={() => update.mutate({ accentColor: color })}
-                className={`w-8 h-8 rounded-full border-2 cursor-pointer ${
-                  settings?.accentColor === color
-                    ? "border-white"
-                    : "border-transparent hover:border-white"
-                }`}
+                onClick={() => applyAccentColor(color)}
+                className="w-8 h-8 rounded-full border-2 cursor-pointer hover:border-white"
                 style={{ backgroundColor: color }}
               />
             ))}

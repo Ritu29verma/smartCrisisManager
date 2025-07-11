@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
+import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "sonner";
@@ -39,45 +39,59 @@ export function AIChatSection() {
   const [inputMessage, setInputMessage] = useState("");
   const scrollAreaRef = useRef(null);
 
-  /* -------------- chat mutation (POST /api/chat) -------------- */
-  const chatMutation = useMutation({
-    mutationFn: async (message) => {
-      const res = await apiRequest("POST", "/api/chat", {
+const chatMutation = useMutation({
+  mutationFn: async (message) => {
+    const token = sessionStorage.getItem("token"); 
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/api/chat`,
+      {
         message,
         messages: messages.map((m) => ({
           role: m.role,
           content: m.content,
-          timestamp: m.timestamp.toISOString(),
+          timestamp: typeof m.timestamp === "string" ? m.timestamp : m.timestamp.toISOString(),
         })),
-      });
-      return res.json();
-    },
-    onSuccess: (data) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.message,
-          timestamp: new Date(data.timestamp),
-          emergencyDetected: data.emergencyDetected,
-          severity: data.severity,
-          suggestedActions: data.suggestedActions,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      ]);
-
-      if (data.emergencyDetected) {
-        toast.warning( "Emergency Detected",
-         { description: `The AI detected a potential ${data.severity} severity emergency. Consider using the emergency alert system.`,
-          variant: "destructive",
-        });
       }
-    },
-    onError: () =>
-      toast.error("Chat Error",
-       { description: "Failed to get AI response. Please try again.",
+    );
+
+    return res.data;
+  },
+  onSuccess: (data) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: data.message,
+        timestamp: new Date(data.timestamp),
+        emergencyDetected: data.emergencyDetected,
+        severity: data.severity,
+        suggestedActions: data.suggestedActions,
+      },
+    ]);
+
+    if (data.emergencyDetected) {
+      toast.warning("Emergency Detected", {
+        description: `The AI detected a potential ${data.severity} severity emergency. Consider using the emergency alert system.`,
         variant: "destructive",
-      }),
+      });
+    }
+  },
+  onError: (error) => {
+  // console.error("Chat API Error:", error);
+  toast.error("Chat Error", {
+    description: "Failed to get AI response. Check console for details.",
+    variant: "destructive",
   });
+},
+});
+
 
   /* ------------------------- helpers ------------------------- */
   const handleSendMessage = () => {
@@ -115,7 +129,6 @@ export function AIChatSection() {
       low: "bg-yellow-900/30 text-yellow-400 border-yellow-700",
     }[s] || "bg-slate-900/30 text-slate-400 border-slate-700");
 
-  /* --------------------------- UI --------------------------- */
   return (
     <div className="max-w-4xl space-y-6">
       <header className="mb-6">
@@ -128,7 +141,7 @@ export function AIChatSection() {
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 h-[600px] flex flex-col">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center space-x-2 text-white">
-            <MessageCircle className="w-5 h-5 text-[hsl(74,100%,40%)]" />
+            <MessageCircle className="w-5 h-5 text-[var(--accent)]" />
             <span>Crisis Manager AI</span>
             <Badge className="bg-green-900/30 text-green-400 border-green-700">
               Online
@@ -162,7 +175,7 @@ export function AIChatSection() {
                       <div
                         className={`p-3 rounded-lg ${
                           m.role === "user"
-                            ? "bg-[hsl(74,100%,40%)] text-black ml-auto"
+                            ? "bg-[var(--accent)] text-black ml-auto"
                             : "bg-slate-700 text-white"
                         }`}
                       >
@@ -244,7 +257,7 @@ export function AIChatSection() {
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || chatMutation.isPending}
-                className="bg-[hsl(74,100%,40%)] hover:bg-[hsl(74,100%,35%)] text-black"
+                className="bg-[var(--accent)] hover:bg-white text-black"
               >
                 {chatMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

@@ -57,7 +57,11 @@
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
+  --accent: hsl(74,100%,40%);
+  --accent-dynamic: var(--accent);
+  --homepage-dark-primary: hsl(215, 28%, 17%);
+  --homepage-accent: hsl(74, 100%, 40%);
+  --homepage-dark-secondary: hsl(220, 39%, 11%);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.004 286.32);
@@ -79,7 +83,7 @@
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: hsl(215,28%,17%);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
   --card-foreground: oklch(0.985 0 0);
@@ -120,3 +124,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+ /* Homepage utilities */
+  .bg-homepage-dark {
+    background-color: var(--homepage-dark-primary);
+  }
+  
+  .bg-homepage-accent {
+    background-color: var(--homepage-accent);
+  }
+  
+  .bg-homepage-dark-secondary {
+    background-color: var(--homepage-dark-secondary);
+  }
+  
+  .text-homepage-accent {
+    color: var(--homepage-accent);
+  }
+  
+  .border-homepage-accent {
+    border-color: var(--homepage-accent);
+  }
+  
+  .hover\:bg-homepage-accent:hover {
+    background-color: var(--homepage-accent);
+  }
+  
+  .hover\:text-homepage-accent:hover {
+    color: var(--homepage-accent);
+  }

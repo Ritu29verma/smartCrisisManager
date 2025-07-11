@@ -63,7 +63,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     sessionStorage.removeItem("token");
     toast.success("Logged out successfully");
-    setLocation("/login");
+    setLocation("/");
   };
 
   // Listen for the phrase “Help me” and trigger an alert via voice hook
@@ -132,14 +132,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-[hsl(220,39%,11%)]">
-      {/* Sidebar (dock‑out icon, nav links, emergency button, etc.) */}
-      {/* <Sidebar
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-        onEmergencyTrigger={handleEmergencyTrigger}
-        isEmergencyTriggering={isTriggering}
-      /> */}
-
       <div className="flex-1 flex flex-col lg:ml-80">
         {/* Header */}
         <header className="bg-[hsl(215,28%,17%)] border-b border-[hsl(217,32%,26%)] px-6 py-4 flex items-center justify-between">
@@ -160,7 +152,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="block sm:hidden w-8 h-8 rounded-full overflow-hidden border-2 border-[hsl(74,100%,40%)]">
+            <div className="block sm:hidden w-8 h-8 rounded-full overflow-hidden border-2 border-[var(--accent)]">
               <img
                 src="/logo.png"
                 alt="Smart Crisis Manager Logo"
@@ -172,14 +164,14 @@ export default function Dashboard() {
           <div className="flex items-center space-x-4">
             {/* Current location (fetched from useLocation) */}
             <div className="hidden sm:flex items-center space-x-2 text-sm text-slate-400">
-              <MapPin className="w-4 h-4 text-[hsl(74,100%,40%)]" />
+              <MapPin className="w-4 h-4 text-[var(--accent)]" />
               <span>{formatLocation()}</span>
             </div>
 
             <div className=" bg-[hsl(220,39%,11%)] text-white flex flex-col items-center justify-center">
               <button
                 onClick={handleLogout}
-                className="bg-[hsl(74,100%,40%)] text-[hsl(220,39%,11%)] font-bold py-2 px-4 rounded hover:opacity-90 transition"
+                className="bg-[var(--accent)] text-[hsl(220,39%,11%)] font-bold py-2 px-4 rounded hover:opacity-90 transition"
               >
                 Logout
               </button>
@@ -196,7 +188,7 @@ export default function Dashboard() {
                     await fetchUserDetails();
                   }
                 }}
-                className="w-8 h-8 bg-[hsl(74,100%,40%)] rounded-full flex items-center justify-center cursor-pointer text-[hsl(220,39%,11%)] font-bold uppercase"
+                className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center cursor-pointer text-[hsl(220,39%,11%)] font-bold uppercase"
               >
                 {userInfo?.name?.[0] || <User className="w-4 h-4" />}
               </div>
