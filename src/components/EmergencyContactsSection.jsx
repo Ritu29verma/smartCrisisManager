@@ -253,7 +253,7 @@ const createContactMutation = useMutation({
           </DialogTrigger>
 
           {/* Dialog content */}
-          <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogContent className="bg-slate-800">
             <DialogHeader>
               <DialogTitle className="text-white">
                 {editingContact ? "Edit Contact" : "Add Emergency Contact"}
@@ -264,14 +264,14 @@ const createContactMutation = useMutation({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Name */}
               <div>
-                <Label htmlFor="name" className="text-white">
+                <Label htmlFor="name" className="text-white mb-2">
                   Full Name
                 </Label>
                 <Input
                   id="name"
                   {...form.register("name")}
                   placeholder="Enter full name"
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-700 text-white"
                 />
                 {form.formState.errors.name && (
                   <p className="text-red-400 text-sm mt-1">
@@ -282,14 +282,14 @@ const createContactMutation = useMutation({
 
               {/* Phone */}
               <div>
-                <Label htmlFor="phone" className="text-white">
+                <Label htmlFor="phone" className="text-white mb-2">
                   Phone Number
                 </Label>
                 <Input
                   id="phone"
                   {...form.register("phone")}
                   placeholder="+1 (555) 000-0000"
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-700 text-white"
                 />
                 {form.formState.errors.phone && (
                   <p className="text-red-400 text-sm mt-1">
@@ -299,7 +299,7 @@ const createContactMutation = useMutation({
               </div>
 
               {/* Primary switch */}
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2">
                 <Switch
                   id="isPrimary"
                   checked={Boolean(form.watch("isPrimary"))}
@@ -308,7 +308,7 @@ const createContactMutation = useMutation({
                 <Label htmlFor="isPrimary" className="text-white">
                   Primary Contact (notified first)
                 </Label>
-              </div>
+              </div> */}
 
               {/* Actions */}
               <div className="flex space-x-3 pt-4">

@@ -9,6 +9,9 @@ import Dashboard from "@/pages/dashboard";
 import Register from "./pages/register";
 import Login from "./pages/Login";
 import HomePage from "./pages/Homepage";
+import FooterSettings from "./components/FooterSettings";
+import UserInfo from "./pages/userInfo";
+import NotFound from "./pages/notFound";
 
  const PrivateRoute = ({ component: Component }) => {
   const token = sessionStorage.getItem("token");
@@ -29,6 +32,9 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/register" component={Register} />
       <Route path="/login" component={Login} />
+      <Route path="/user-info" component={UserInfo} />
+      <Route path="/not-found" component={NotFound} />
+      <Route path="/footer-settings/:section" component={FooterSettings} />
       <Route path="/dashboard" component={() => <PrivateRoute component={Dashboard} />} />
       {/* <Route component={NotFound} /> */}
     </Switch>

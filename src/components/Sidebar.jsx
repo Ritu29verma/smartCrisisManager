@@ -22,20 +22,21 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEmergency } from "@/hooks/useEmergency";
+import { Separator } from "@/components/ui/separator";
 
 const sidebarItems = [
   { id: "dashboard", label: "Dashboard", icon: Shield },
   { id: "ai-chat", label: "AI Assistant", icon: MessageCircle },
   { id: "emergency-contacts", label: "Emergency Contacts", icon: Users },
   { id: "ai-settings", label: "AI Settings", icon: Brain },
-  { id: "gesture-settings", label: "Gesture Settings", icon: Hand },
+  // { id: "gesture-settings", label: "Gesture Settings", icon: Hand }, //in future implementation
   { id: "automation-rules", label: "Automation Rules", icon: Settings },
   { id: "chat-history", label: "Chat History", icon: History },
   { id: "theme-appearance", label: "Theme & Appearance", icon: Palette },
   { id: "language-voice", label: "Language / Voice Input", icon: Globe },
   { id: "notification-settings", label: "Notification Settings", icon: Bell },
   { id: "privacy-permissions", label: "Privacy & Permissions", icon: Lock },
-  { id: "device-integration", label: "Device Integration", icon: Smartphone },
+  // { id: "device-integration", label: "Device Integration", icon: Smartphone },
   { id: "help-support", label: "Help & Support", icon: HelpCircle },
 ];
 
@@ -81,7 +82,7 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
             />
           </div>
 
-          <h1 className="text-xl font-bold text-white">Crisis Manager</h1>
+          <h1 className="text-xl font-bold text-white sm:text-xs">Smart Crisis Manager</h1>
         </div>
         {onClose && (
           <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden text-slate-400 hover:text-black">
@@ -117,6 +118,9 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
                 key={item.id}
                 onClick={() => {
                   onSectionChange(item.id);
+                  setTimeout(() => {
+    window.scrollTo({ bottom : 0, behavior: "smooth" });
+  }, 100); 
                   if (onClose) onClose();
                 }}
                 className={cn(
@@ -154,6 +158,13 @@ export function Sidebar({ activeSection, onSectionChange, onEmergencyTrigger, is
           )}
         </Button>
         <p className="text-xs text-slate-400 mt-2 text-center">Or double-press 'V' key</p>
+      </div>
+
+      <div>
+         {/* <Separator className="bg-gray-800 mt-12" /> */}
+        <div className="text-xs mb-2 text-slate-100 mt-2 text-center">
+          <p>&copy; 2025 Team Code Commanders. All rights reserved.</p>
+        </div>
       </div>
     </div>
   );

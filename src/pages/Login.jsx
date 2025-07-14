@@ -32,12 +32,12 @@ const Login = () => {
         form
       );
       sessionStorage.setItem("token", res.data.token);
-      toast.success("Account Created", {
+      toast.success("LoggedIn Successfully", {
         description: "Redirecting to dashboard...",
       });
       setTimeout(() => setLocation("/dashboard"), 1000);
     } catch (error) {
-      const message = error.response?.data?.message || "Registration failed.";
+      const message = error.response?.data?.message || "Login failed.";
       toast.error("Error", {
         description: message,
       });

@@ -619,7 +619,7 @@ export function PrivacyPermissionsSection() {
   const perms = [
     ["🎤", "Microphone", "For voice commands", "Granted"],
     ["📍", "Location", "For emergency location sharing", "Granted"],
-    ["💬", "SMS", "For emergency messaging", "Pending"],
+    // ["💬", "SMS", "For emergency messaging", "Pending"],
   ];
 
   return (
@@ -720,7 +720,7 @@ export function HelpSupportSection() {
   const faqs = [
     [
       "How do I set up emergency contacts?",
-      'You can add emergency contacts in the main dashboard by clicking on the "Emergency Contacts" card and following the setup wizard.',
+      'You can add emergency contacts by clicking on the "Emergency Contacts" section from Sidebar and following the setup wizard.',
     ],
     [
       "What triggers an emergency alert?",

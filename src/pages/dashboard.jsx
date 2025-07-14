@@ -9,8 +9,8 @@ import axios from "axios";
 import { useEmergency } from "@/hooks/useEmergency";
 import { useLocation as useGeoLocation } from "@/hooks/useLocation"; // ✅ alias for custom location
 import { useVoice } from "@/hooks/useVoice";
-
 import { MapPin, User } from "lucide-react";
+import { Link } from "wouter";
 
 import {
   AISettingsSection,
@@ -26,31 +26,12 @@ import {
 } from "@/components/settingsSections";
 
 export default function Dashboard() {
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState(" ");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [, setLocation] = useRouteLocation();
   const { triggerAlert, isTriggering } = useEmergency();
   const { formatLocation } = useGeoLocation();
-
-  const fetchUserDetails = async () => {
-    const token = sessionStorage.getItem("token");
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/get-user-details`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setUserInfo(res.data.User);
-    } catch (error) {
-      console.error("Fetch error:", error);
-      toast.error("Failed to fetch user details");
-    }
-  };
-
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -134,15 +115,16 @@ export default function Dashboard() {
     <div className="flex h-screen bg-[hsl(220,39%,11%)]">
       <div className="flex-1 flex flex-col lg:ml-80">
         {/* Header */}
-        <header className="bg-[hsl(215,28%,17%)] border-b border-[hsl(217,32%,26%)] px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            {/* (Optional) show burger / sidebar toggle on mobile */}
-            <Sidebar
+        <header className="bg-[hsl(215,28%,17%)] border-b border-[hsl(217,32%,26%)] px-4 py-4 flex items-center justify-between">
+           <Sidebar
               activeSection={activeSection}
               onSectionChange={setActiveSection}
               onEmergencyTrigger={handleEmergencyTrigger}
               isEmergencyTriggering={isTriggering}
             />
+          <div className="flex items-center">
+            {/* (Optional) show burger / sidebar toggle on mobile */}
+            
             <div className="hidden sm:block">
               <h2 className="text-xl font-semibold text-white">
                 {getSectionTitle(activeSection)}
@@ -176,33 +158,12 @@ export default function Dashboard() {
                 Logout
               </button>
             </div>
-
-            {/* User avatar placeholder */}
-            {/* User avatar placeholder */}
-            <div className="relative">
-              <div
-                onClick={async () => {
-                  const next = !showProfileDropdown;
-                  setShowProfileDropdown(next);
-                  if (next && !userInfo) {
-                    await fetchUserDetails();
-                  }
-                }}
-                className="w-8 h-8 bg-[var(--accent)] rounded-full flex items-center justify-center cursor-pointer text-[hsl(220,39%,11%)] font-bold uppercase"
+             <button
+                onClick={() => setLocation("/user-info")}
+                className="bg-[var(--accent)] text-[hsl(220,39%,11%)] font-bold py-2 px-4 rounded hover:opacity-90 transition"
               >
-                {userInfo?.name?.[0] || <User className="w-4 h-4" />}
-              </div>
-
-              {showProfileDropdown && userInfo && (
-                <div>
-                  <div className="absolute right-0 mt-2 w-60 bg-[hsl(215,28%,17%)] border border-[hsl(218,40%,61%)] rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-lg p-4 z-50 text-white">
-                    <p className="text-sm"><strong>Name:</strong> {userInfo.name}</p>
-                    <p className="text-sm"><strong>Email:</strong> {userInfo.email}</p>
-                    <p className="text-sm"><strong>Phone:</strong> {userInfo.phone}</p>
-                  </div>
-                </div>
-              )}
-            </div>
+                Profile
+              </button>
 
 
           </div>
